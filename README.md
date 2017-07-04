@@ -29,7 +29,9 @@
 ##### `<dev>/stream/start`
 Запускает видео трансляцию. Возвращает JSON объект (успех/неудача).
 
-Доступ по адресу: страница `http://geoworks.pro:800<NPdev>/stream`, элемент для встраивания `http://geoworks.pro:800<dev>/stream/video.mjpeg`
+Доступ по адресу: страница `http://geoworks.pro:2328<5+NPdev>/stream`, элемент для встраивания `http://geoworks.pro:2328<5+NPdev>/stream/video.mjpeg`
+
+Пример: `http://geoworks.pro:23286/stream` (для `infDev1`)
 
 ##### `<dev>/stream/stop`
 Останавливает видео трансляцию. Возвращает JSON объект (успех/неудача).
