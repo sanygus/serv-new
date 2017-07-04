@@ -1,4 +1,4 @@
-#### `http://geoworks.pro:3000/<function>?[<param>=<value>&]`
+#### `http://geoworks.pro:3000/<function>`
 
 Каждый успешный ответ содержит JSON объект или файл. В JSON объекте всегда присутствует поле `ok` (true/false). Если false - в ответе будет код ошибки и текстовое описание.
 
@@ -11,6 +11,7 @@
 Устанавливает флаг на пробуждение для девайса с `id`=`<dev>`. Устройство будет готово к работе через 90 сек.
 
 Пример запроса: `http://geoworks.org:3000/infDev1/wakeup`
+
 Проверить флаг: `http://geoworks.pro:1234/watch?action=get&iddev=infDev1`
 
 ##### `<dev>/photo`
