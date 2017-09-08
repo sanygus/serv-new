@@ -68,6 +68,17 @@ app.get('/:id/*', (req, res) => {
   }
 });
 
+app.get('/webhook/:devid/:event', (req, res) => {
+  const { url } = req.query;
+  if (url) {
+    req.params.devid = parseInt(req.params.devid);
+    db.addWebHook(Object.assign({}, { url }, req.params));
+    res.type('application/json').status(200).send({ok: true});
+  } else {
+    res.type('application/json').status(400).send({ok: false});
+  }
+});
+
 app.get('/', (req, res) => {
   res.type('text/html').status(200).send("\
     Avalable functions:<ul>\

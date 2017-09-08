@@ -1,130 +1,66 @@
 const MongoClient = require('mongodb').MongoClient;
-const map = require('async/map');
-const parallel = require('async/parallel');
+const { map, parallel } = require('async');
 const options = require('./options');
+let dataBase;
 
 MongoClient.connect(options.mongoDBUrl, (err, db) => {
-  if (err) {
-    console.log(err);
-  } else {
+  if (err) { console.log(err); } else {
     dataBase = db;
     console.log('connect to DB success');
   }
   //db.close();
 });
 
-module.exports.getStatus = (iddev, callback) => {
-  dataBase.collection('events').find(
-    {
-      iddev,
-      event: { $in: ['wakeup', 'sleep'] },
+module.exports.getStatus = (devid, callback) => {
+  parallel({
+    lastEvent: (cb) => {
+      dataBase.collection('events').findOne(
+        {
+          devid,
+          event: { $in: ['wakeup', 'sleep'] },
+        },
+        { '_id': false },
+        { 'sort': [['recDate', 'desc']] },
+        cb
+      );
     },
-    { '_id': false },
-    {
-      'limit': 1,
-      'sort': [['date', 'desc']]
+    lastHB: (cb) => {
+      dataBase.collection('heartbeats').findOne(
+        { devid },
+        { '_id': false },
+        { 'sort': [['recDate', 'desc']] },
+        cb
+      )
     }
-  ).toArray((err, lastStat) => {
-    if (err) { callback(err); } else {
-      if (lastStat.length === 1) {
-        callback(null, lastStat.slice()[0]);
-      } else {
-        callback(new Error('No info about device'));
+  }, (err, res) => {
+    let state = null;
+    if (res.lastEvent && res.lastHB) {
+      state = { up: null, charge: res.lastHB.charge }
+      if (new Date() - new Date(res.lastHB.recDate) < 50000) {
+        if ((res.lastHB.component === "rpi") && (res.lastEvent.event === "wakeup")) {
+          state.up = true;
+        } else if ((res.lastHB.component === "ard") && (res.lastEvent.event === "sleep")) {
+          state.up = false;
+        }
       }
-    }
+    } else { err = new Error(`no info about state ${devid}`); }
+    callback(err, state);
   });
 }
 
 module.exports.getAllStatus = (callback) => {
   dataBase.collection('devs').find({}, { '_id': false }, { 'sort': 'order' }).toArray((err, devs) => {
     if (err) { callback(err); } else {
-      map(
-        devs,
-        (devObj, callback) => {
-          parallel({
-            charge: (callbackP) => {
-              dataBase.collection('sensors').find(
-                { 'iddev': devObj['iddev'] },
-                { '_id': false },
-                {
-                  'limit': 1,
-                  'sort': [['date', 'desc']]
-                }
-              ).toArray((err, lastDocs) => {
-                if (err) { callbackP(err); } else {
-                  if (lastDocs.length <= 1) {
-                    let result = null;
-                    if (lastDocs.length === 1) {
-                      result = lastDocs.slice()[0];
-                      delete result['iddev'];
-                    }
-                    callbackP(null, result.charge);
-                  } else {
-                    callbackP(new Error('more 1 records on limit'));
-                  }
-                }
-              });
-            },
-            status: (callbackP) => {
-              const search = {};// search by type/event
-              search['iddev'] = devObj['iddev'];
-              search.event = { $in: ['wakeup', 'sleep'] };
-              dataBase.collection('events').find(
-                search,
-                { '_id': false },
-                {
-                  'limit': 1,
-                  'sort': [['date', 'desc']]
-                }
-              ).toArray((err, lastStat) => {
-                if (err) { callbackP(err); } else {
-                  if (lastStat.length <=1) {
-                    let result = null;
-                    if (lastStat.length === 1) {
-                      result = lastStat.slice()[0];
-                      delete result['iddev'];
-                    }
-                    callbackP(null, result);
-                  } else {
-                    callbackP(new Error('more 1 stat records on limit'));
-                  }
-                }
-              });
-            },
-            warn: (callbackP) => {
-              const search = {};// search by type/event
-              search['iddev'] = devObj['iddev'];
-              search.event = 'warn';
-              dataBase.collection('events').find(
-                search,
-                { '_id': false },
-                {
-                  'limit': 1,
-                  'sort': [['date', 'desc']]
-                }
-              ).toArray((err, lastStat) => {
-                if (err) { callbackP(err); } else {
-                  if (lastStat.length <=1) {
-                    let result = null;
-                    if (lastStat.length === 1) {
-                      result = lastStat.slice()[0];
-                      delete result['iddev'];
-                    }
-                    callbackP(null, result);
-                  } else {
-                    callbackP(new Error('more 1 stat warn records on limit'));
-                  }
-                }
-              });
-            },
-          }, (err, resultPar) => {
-            resultPar.location = devObj.location;
-            resultPar.iddev = devObj.iddev;
-            callback(err, resultPar);
-          });
-        },
-        callback
-      );
+      map(devs, (dev, cb) => {
+        module.exports.getStatus(dev.devid, (err, state) => {
+          cb(err, Object.assign({}, state, dev));
+        });
+      }, callback);//[ { up: true, charge: 0.5, devid: 1, label: '123' }, { up: null, charge: 0.3, devid: 2, label: '124' } ]
     }
   });
+}
+
+module.exports.addWebHook = (data) => {
+  //console.log(data);
+  dataBase.collection('webhook').insertOne(data);
 }

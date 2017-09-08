@@ -1,5 +1,5 @@
 module.exports = {
-  mongoDBUrl: 'mongodb://localhost:27017/sens-serv',
+  mongoDBUrl: 'mongodb://localhost:27017/devsdb',
   httpPort: 3000,
   devsIP: {
     'infDev1': '192.168.88.20',
