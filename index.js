@@ -4,7 +4,6 @@ const options = require('./options');
 const db = require('./db');
 
 app.get('/state', (req, res) => {
-  console.log('status');
   db.getAllStatus((err, result) => {
     if (err) {
       res.type('application/json').status(503).send({ok: false, error: {code: 503, text: err.message}});
@@ -41,7 +40,7 @@ app.get('/:id/wakeup', (req, res) => {
 
 app.get('/:id/*', (req, res) => {
   if (options.devsIP[req.params.id] !== undefined) {
-    db.getStatus(req.params.id, (err, state) => {
+    db.getStatus(parseInt(req.params.id), (err, state) => {
       if (err) {
         res.type('application/json').status(503).send({ok: false, error: {code: 503, text: err.message}});
       } else if (state) {
