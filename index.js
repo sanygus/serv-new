@@ -44,7 +44,7 @@ app.get('/:id/*', (req, res) => {
       if (err) {
         res.type('application/json').status(503).send({ok: false, error: {code: 503, text: err.message}});
       } else if (state) {
-        if ((state.event !== undefined) && (state.event === 'wakeup')) {
+        if (state.up) {
           const devReq = req.originalUrl.replace(`/${req.params.id}`, '');
           console.log(devReq);
           request
@@ -53,10 +53,8 @@ app.get('/:id/*', (req, res) => {
               res.type('application/json').status(504).send({ok: false, error: {code: 504, text: 'Device not available'}});
             })
             .pipe(res);
-        } else if ((state.event !== undefined) && (state.event === 'sleep')) {
-          res.type('application/json').status(303).send({ok: false, error: {code: 303, text: 'Device is sleeping', date: state.date, time: state.time}});
-        } else {
-          res.type('application/json').status(503).send({ok: false, error: {code: 503, text: 'Uncertain state for device'}});
+        } else {//false|null
+          res.type('application/json').status(303).send({ok: false, error: {code: 303, text: 'Device is sleeping or broken'}});
         }
       } else {
         res.type('application/json').status(503).send({ok: false, error: {code: 503, text: 'No state for device'}});
