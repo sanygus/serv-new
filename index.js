@@ -50,7 +50,7 @@ app.get('/:id/*', (req, res) => {
           request
             .get(`http://${options.devsIP[req.params.id]}:3000${devReq}`)
             .on('error', (/*errorGet*/) => {
-              res.type('application/json').status(504).send({ok: false, error: {code: 504, text: 'Device not available'}});
+              res.type('application/json').status(504).send({ok: false, error: {code: 504, text: 'Device is not available'}});
             })
             .pipe(res);
         } else {//false|null
