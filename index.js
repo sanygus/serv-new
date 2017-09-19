@@ -13,6 +13,17 @@ app.get('/state', (req, res) => {
   });
 });
 
+app.get('/webhook/:devid/:event', (req, res) => {
+  const { url } = req.query;
+  if (url) {
+    req.params.devid = parseInt(req.params.devid);
+    db.addWebHook(Object.assign({}, { url }, req.params));
+    res.type('application/json').status(200).send({ok: true});
+  } else {
+    res.type('application/json').status(400).send({ok: false});
+  }
+});
+
 app.get('/:id/wakeup', (req, res) => {
   if (options.devsIP[req.params.id] !== undefined) {
     request
@@ -62,17 +73,6 @@ app.get('/:id/*', (req, res) => {
     });
   } else {
     res.type('application/json').status(503).send({ok: false, error: {code: 503, text: 'Device is not registered'}});
-  }
-});
-
-app.get('/webhook/:devid/:event', (req, res) => {
-  const { url } = req.query;
-  if (url) {
-    req.params.devid = parseInt(req.params.devid);
-    db.addWebHook(Object.assign({}, { url }, req.params));
-    res.type('application/json').status(200).send({ok: true});
-  } else {
-    res.type('application/json').status(400).send({ok: false});
   }
 });
 
