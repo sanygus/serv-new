@@ -16,14 +16,14 @@ app.get('/state', (req, res) => {
 app.get('/:id/wakeup', (req, res) => {
   if (options.devsIP[req.params.id] !== undefined) {
     request
-      .get(`http://geoworks.pro:1234/watch?action=set&iddev=${req.params.id}&status=1`)
+      .get(`http://127.0.0.1:3001/wake/${req.params.id}`)
       .on('error', (/*errorGet*/) => {
         res.type('application/json').status(504).send({ok: false, error: {code: 504, text: 'Server not available'}});
       })
       .on('response', (respServ) => {
         respServ.on('data', (dataServ) => {
           try {
-            if (JSON.parse(dataServ).status === "ok") {
+            if (JSON.parse(dataServ).ok) {
               res.type('application/json').status(200).send({ok: true});
             } else {
               res.type('application/json').status(503).send({ok: false});
