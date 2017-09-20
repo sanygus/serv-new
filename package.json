@@ -5,6 +5,7 @@
   "main": "index.js",
   "dependencies": {
     "async": "^2.5.0",
+    "cors": "^2.8.4",
     "express": "^4.15.3",
     "mongodb": "^2.2.31",
     "request": "^2.81.0"

@@ -2,6 +2,9 @@ const app = require('express')();
 const request = require('request');
 const options = require('./options');
 const db = require('./db');
+const cors = require('cors');
+
+app.use(cors());
 
 app.get('/state', (req, res) => {
   db.getAllStatus((err, result) => {
