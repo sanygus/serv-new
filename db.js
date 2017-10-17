@@ -49,7 +49,11 @@ module.exports.getStatus = (devid, callback) => {
 }
 
 module.exports.getAllStatus = (callback) => {
-  dataBase.collection('devs').find({}, { '_id': false, 'order': false }, { 'sort': 'order' }).toArray((err, devs) => {
+  dataBase.collection('devs').find(
+    { 'order': { $gt: 0 } },
+    { '_id': false, 'order': false },
+    { 'sort': 'order' }
+  ).toArray((err, devs) => {
     if (err) { callback(err); } else {
       map(devs, (dev, cb) => {
         module.exports.getStatus(dev.devid, (err, state) => {
