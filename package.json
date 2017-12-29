@@ -12,13 +12,14 @@
   },
   "devDependencies": {},
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/sanygus/sens-new.git"
   },
-  "author": "",
+  "author": "Alexander Gusarov <gusarov@informatica.ru>",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/sanygus/sens-new/issues"

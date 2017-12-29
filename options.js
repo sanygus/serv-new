@@ -1,5 +1,5 @@
 module.exports = {
-  mongoDBUrl: 'mongodb://localhost:27017/devsdb',
+  mongoDBUrl: 'mongodb://sunputer-db:27017/devsdb',
   httpPort: 3000,
   devsIP: {
     '1': '172.30.0.31',
