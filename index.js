@@ -4,6 +4,8 @@ const options = require('./options');
 const db = require('./db');
 const cors = require('cors');
 
+const protocol = 'http://';
+
 app.use(cors());
 
 app.get('/state', (req, res) => {
@@ -30,7 +32,7 @@ app.get('/webhook/:devid/:event', (req, res) => {
 app.get('/:id/wakeup', (req, res) => {
   if (options.devsIP[req.params.id] !== undefined) {
     request
-      .get(`https://sunputer-stater:3001/wake/${req.params.id}`)
+      .get(`${protocol}sunputer-stater:3001/wake/${req.params.id}`)
       .on('error', (/*errorGet*/) => {
         res.type('application/json').status(504).send({ok: false, error: {code: 504, text: 'Server not available'}});
       })
@@ -62,7 +64,7 @@ app.get('/:id/*', (req, res) => {
           const devReq = req.originalUrl.replace(`/${req.params.id}`, '');
           console.log(devReq);
           request
-            .get(`https://${options.devsIP[req.params.id]}:3000${devReq}`)
+            .get(`${protocol}${options.devsIP[req.params.id]}:3000${devReq}`)
             .on('error', (/*errorGet*/) => {
               res.type('application/json').status(504).send({ok: false, error: {code: 504, text: 'Device is not available'}});
             })
