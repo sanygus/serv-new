@@ -30,7 +30,7 @@ app.get('/webhook/:devid/:event', (req, res) => {
 app.get('/:id/wakeup', (req, res) => {
   if (options.devsIP[req.params.id] !== undefined) {
     request
-      .get(`http://127.0.0.1:3001/wake/${req.params.id}`)
+      .get(`https://sunputer-stater:3001/wake/${req.params.id}`)
       .on('error', (/*errorGet*/) => {
         res.type('application/json').status(504).send({ok: false, error: {code: 504, text: 'Server not available'}});
       })
@@ -62,7 +62,7 @@ app.get('/:id/*', (req, res) => {
           const devReq = req.originalUrl.replace(`/${req.params.id}`, '');
           console.log(devReq);
           request
-            .get(`http://${options.devsIP[req.params.id]}:3000${devReq}`)
+            .get(`https://${options.devsIP[req.params.id]}:3000${devReq}`)
             .on('error', (/*errorGet*/) => {
               res.type('application/json').status(504).send({ok: false, error: {code: 504, text: 'Device is not available'}});
             })
